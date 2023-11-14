@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Dino Game</title>
+  <link href='https://fonts.googleapis.com/css?family=Pixelify Sans' rel='stylesheet'>
+</head>
+<style>
+  /*
+  Units
+  px - pixels on the screen
+  % - percentage of the parent
+  vw - view width; screen width
+  vh - view height; screen height
+
+  */
+
+  /*Style for elements names body*/
+   body {
+    background-color: aquamarine;
+
+    /*Remove gap at top and left-*/
+    margin: 0;
+
+    /*Remove Scroll Bars-*/
+    overflow-x: hidden;
+    overflow-y: hidden;
+   }
+
+   /*Style for elements of id "canvas"*/
+   #canvas {
+    background-color: white;
+   }
+</style>
+<body>
+  <canvas class="canvas" id="canvas">Your Browser Doesn't Support Canvas</canvas>
+</body>
+<script>
+  /* two ways to make a variable
+
+  var - changeable throughout code
+  exmaple: create and change
+  var x = 10;
+  x = 5;
+
+  const - constant, cannot change
+  example:
+  const x = 10;
+
+  NOTE: x=5; wont work because a const cannot change
+
+
+  More code to know / usefull code:
+
+  clear the screen
+  ctx.clearRect(0, 0, width, height);
+
+  draw rectangular lines
+  ctx.strokeStyle = "#000";
+  ctx.lineWidth = 5;
+  ctx.strokeRect(x, y, width, height);
+
+  draw full rectangles
+  ctx.fillStyle = "#878787";
+  ctx.fillRect(x, y, width, height);
+
+  log to inspect console - view by pressing f12 in browser then console
+  console.log('helloworld');
+
+  */
+
+
+  // find the canvas
+  const canvas = document.getElementById("canvas");
+  const ctx = canvas.getContext("2d");
+
+  // fill the screen
+  canvas.width = innerWidth;
+  canvas.height = innerHeight;
+
+  //put width and height into variables
+  const width = canvas.width;
+  const height = canvas.height;
+
+  // score / points
+  var score = 0;
+
+  // physics do exist
+  const gravity = 0.5;
+
+  // player stats
+  var playerY = height-500;
+  var velocityY = 0;
+  var playerOnGround = false;
+ 
+  // game over status
+  var gameover = false;
+
+  //cactus stats
+  var velocityC = -5;
+  var cactusX1 = width;
+
+  //runs every time the screen updates
+  function update() {
+    // update ever frame
+    requestAnimationFrame(update);
+
+    // if they player is touching the cactus
+    if (((cactusX1 >= 50 && cactusX1 <= 100) || 50 >= cactusX1 || 100 >= cactusX1+100) && playerY+100 >= height-250) {
+      gameover = true;
+    }
+
+    if (!gameover){
+      //add 1 to score
+      score++;
+
+      // if not touching ground
+      if (playerY + velocityY < height-250) {
+        velocityY += gravity;
+        playerOnGround = false;
+      }
+      // if touching ground
+      else {
+        velocityY = 0;
+        playerOnGround = true;
+      }
+
+      // detects if off-screen, then reset
+      if (cactusX1+100 == 0) {
+        cactusX1 = width;
+      }
+
+      // move player
+      playerY += velocityY;
+
+      // move the cactus
+      cactusX1 += velocityC;
+    }
+
+    // draws the screen
+    draw();
+  }
+
+  // call this function to refresh screen
+  function draw(){
+    //clear screen
+    ctx.clearRect(0, 0, width, height);
+
+    //draw land
+    ctx.fillStyle = "#878787";
+    ctx.fillRect(0, height-200, width, 200);
+
+    //draw player
+    ctx.fillStyle = "#AA00FF";
+    ctx.fillRect(50, playerY, 50, 100);
+
+    //draw obstacle
+    ctx.fillStyle = "#009143";
+    ctx.fillRect(cactusX1, height-250, 100, 100);
+
+    //draw score
+    ctx.fillStyle = "#000";
+    ctx.font = "30px Pixelify Sans";
+    ctx.fillText(score, 5, 25);
+
+    // if the game is over, show game over text
+    if (gameover){
+      // game over text drawn on screen
+      ctx.fillStyle = "#000";
+      ctx.font = "50px Pixelify Sans";
+      ctx.fillText("Game Over!", width/2 - 125, height/2);
+
+      // instructions
+      ctx.font = "25px Pixelify Sans";
+      ctx.fillText("Press 'R' to reset", width/2 - 100, height/2 + 25);
+    }
+  }
+
+  // reset game and variables
+  function reset() {
+    playerY = height-500;
+    velocityY = 0;
+    playerOnGround = false;
+    gameover = false;
+    velocityC = -5;
+    cactusX1 = width;
+    score = 0;
+  }
+
+
+  //update the screen
+  update();
+
+  // listen for keydown events
+  addEventListener('keydown', (event) => {
+    // if spacebar or up arrow is pressed and is on the ground
+    if((event.code == 'Space' || event.code == 'ArrowUp') && playerOnGround) {
+      // keep in mind velocity is - because the top left is 0, 0
+      velocityY -= 17;
+    }
+    // if 'r' is pressed
+    if(event.code == 'KeyR') {
+      // reset the game
+      reset();
+    }
+  });
+
+  // listen for keyup events
+  addEventListener('keyup', (event) => {
+    // if spacebar or up arrow is released
+    if(event.code == 'Space' || event.code == 'ArrowUp') {
+      velocityY = 0;
+    }
+  });
+</script>
+</html>
